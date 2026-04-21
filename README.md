@@ -5,15 +5,17 @@ fixe les IP
 
 Ce guide explique comment attribuer une adresse IP fixe à une machine virtuelle Ubuntu Server tournant sous Proxmox, en utilisant **Netplan**.
 
-## 📋 Prérequis
+Créer le fichier de configuration Netplan
 
-- Une VM Ubuntu Server (18.04 ou ultérieur) sur Proxmox
-- Accès `root` ou `sudo` à la VM
-- Connaître les informations réseau suivantes :
-  - Adresse IP souhaitée
-  - Masque de sous-réseau (notation CIDR)
-  - Passerelle par défaut
-  - Serveurs DNS
+sudo nano /etc/netplan/01-netcfg.yaml
+
+sudo chmod 600 /etc/netplan/01-netcfg.yaml
+
+sudo netplan tr
+
+Appliquer définitivement
+
+sudo netplan apply
 
 ## ⚠️ Important : Désactiver cloud-init
 
