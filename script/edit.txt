@@ -1,0 +1,13 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens18:                        # ⚠️ Remplacer par votre interface
+      dhcp4: no
+      addresses:
+        - 10.2.3.237/22           # IP fixe + masque CIDR
+      routes:
+        - to: default
+          via: 10.2.0.1           # Passerelle
+      nameservers:
+        addresses: [8.8.8.8, 1.1.1.1]  # DNS Google / Cloudflare
