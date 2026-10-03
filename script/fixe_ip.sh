@@ -24,6 +24,9 @@ warn() { echo -e "  ${YEL}⚠${NC} $1"; }
 die()  { echo -e "  ${RED}✘ $1${NC}"; exit 1; }
 
 # ── Validations (Python : stdlib, déjà présent sur Ubuntu Server) ──
+valid_iface() {
+    [ -n "$1" ] && ip -o link show dev "$1" >/dev/null 2>&1
+}
 valid_ipv4() {
     "$PY" -c "import ipaddress,sys; ipaddress.IPv4Address(sys.argv[1])" "$1" 2>/dev/null
 }
@@ -83,15 +86,10 @@ ip -o link show | awk -F': ' '$2 !~ /^lo$/ {print "    - " $2}' | sed 's/@.*//'
 echo ""
 
 # ── Questions ──────────────────────────────────────────────────────
-# Interface : détectée automatiquement (route par défaut). Question seulement si introuvable.
-if [ -n "$DEF_IFACE" ]; then
-    IFACE="$DEF_IFACE"
-    ok "Interface détectée automatiquement : $IFACE"
-else
-    warn "Aucune interface détectée automatiquement."
-    ask "Nom de l'interface réseau" "" true
-    IFACE="$REPLY_VAL"
-fi
+# L'interface détectée est proposée entre crochets : Entrée pour confirmer,
+# ou tape le nom d'une autre interface si la machine en a plusieurs.
+ask "Interface réseau" "$DEF_IFACE" valid_iface
+IFACE="$REPLY_VAL"
 
 ask "IP fixe (ex. 10.2.3.237)" "$DEF_IP" valid_ipv4
 IP="$REPLY_VAL"
