@@ -14,13 +14,12 @@ cd fixation_IP/script
 sudo bash fixe_ip.sh
 ```
 
-Le script demande :
+L'interface réseau est détectée automatiquement. Le script demande :
 
 ```
-Interface réseau [ens18] :
 IP fixe (ex. 10.2.3.237) :
 Masque en CIDR (ex. 24 pour 255.255.255.0, 22 pour 255.255.252.0) [22] :
-Passerelle (Gatwa) [10.2.0.1] :
+Gateway [10.2.0.1] :
 DNS, séparés par une virgule [8.8.8.8,1.1.1.1] :
 ```
 
@@ -29,8 +28,8 @@ Les valeurs déjà en place sont proposées par défaut : appuie sur Entrée pou
 ### Ce que le script vérifie
 
 - l'IP et le masque sont valides ;
-- la passerelle est dans le même réseau que l'IP ;
-- l'IP n'est pas la passerelle elle-même ;
+- la gateway est dans le même réseau que l'IP ;
+- l'IP n'est pas la gateway elle-même ;
 - l'IP ne répond pas déjà sur le réseau (sinon il avertit d'un conflit).
 
 Il affiche la configuration complète et **ne modifie rien sans ta confirmation**.
@@ -72,7 +71,7 @@ Remplace `XXXX` par le dossier affiché à la fin du script.
 
 ```bash
 ip -4 addr show       # l'IP fixe doit apparaître
-ip route              # la ligne "default via ..." doit pointer sur la passerelle
+ip route              # la ligne "default via ..." doit pointer sur la gateway
 ```
 
 ---
@@ -92,7 +91,7 @@ network:
         - 10.2.3.237/22           # IP fixe + masque CIDR
       routes:
         - to: default
-          via: 10.2.0.1           # passerelle
+          via: 10.2.0.1           # gateway
       nameservers:
         addresses: [8.8.8.8, 1.1.1.1]
 ```

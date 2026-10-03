@@ -83,8 +83,15 @@ ip -o link show | awk -F': ' '$2 !~ /^lo$/ {print "    - " $2}' | sed 's/@.*//'
 echo ""
 
 # ── Questions ──────────────────────────────────────────────────────
-ask "Interface réseau" "${DEF_IFACE:-ens18}" true
-IFACE="$REPLY_VAL"
+# Interface : détectée automatiquement (route par défaut). Question seulement si introuvable.
+if [ -n "$DEF_IFACE" ]; then
+    IFACE="$DEF_IFACE"
+    ok "Interface détectée automatiquement : $IFACE"
+else
+    warn "Aucune interface détectée automatiquement."
+    ask "Nom de l'interface réseau" "" true
+    IFACE="$REPLY_VAL"
+fi
 
 ask "IP fixe (ex. 10.2.3.237)" "$DEF_IP" valid_ipv4
 IP="$REPLY_VAL"
@@ -92,7 +99,7 @@ IP="$REPLY_VAL"
 ask "Masque en CIDR (ex. 24 pour 255.255.255.0, 22 pour 255.255.252.0)" "$DEF_PREFIX" valid_prefix
 PREFIX="$REPLY_VAL"
 
-ask "Passerelle (Gatwa)" "$DEF_GW" valid_ipv4
+ask "Gateway" "$DEF_GW" valid_ipv4
 GW="$REPLY_VAL"
 
 ask "DNS, séparés par une virgule" "8.8.8.8,1.1.1.1" valid_dns_list
@@ -103,12 +110,12 @@ echo ""
 echo -e "${BLD}Vérifications :${NC}"
 
 if [ "$IP" = "$GW" ]; then
-    die "L'IP fixe ne peut pas être la passerelle elle-même."
+    die "L'IP fixe ne peut pas être la gateway elle-même."
 fi
 if ! in_subnet "$IP" "$PREFIX" "$GW"; then
-    die "La passerelle $GW n'est pas dans le réseau $IP/$PREFIX. Vérifie l'IP et le masque."
+    die "La gateway $GW n'est pas dans le réseau $IP/$PREFIX. Vérifie l'IP et le masque."
 fi
-ok "Passerelle $GW dans le réseau $IP/$PREFIX"
+ok "Gateway $GW dans le réseau $IP/$PREFIX"
 
 if ping -c 1 -W 1 "$IP" >/dev/null 2>&1; then
     warn "L'IP $IP répond déjà sur le réseau : un autre appareil l'utilise (conflit)."
@@ -200,9 +207,9 @@ else
     warn "L'IP $IP n'apparaît pas sur $IFACE : vérifie avec 'ip -4 addr'"
 fi
 if ip route show default | grep -q "via ${GW}"; then
-    ok "Passerelle $GW active"
+    ok "Gateway $GW active"
 else
-    warn "Passerelle non vérifiée : vérifie avec 'ip route'"
+    warn "Gateway non vérifiée : vérifie avec 'ip route'"
 fi
 
 echo ""
